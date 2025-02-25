@@ -1,31 +1,42 @@
 from enum import Enum
+import re
 
 from htmlnode import LeafNode
 
 
+def extract_markdown_images(text):
+    find_alt = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    return find_alt
+
+
+def extract_markdown_links(text):
+    find_link = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+    return find_link
+
+
 def split_nodes_delimiter(old_nodes, delimiter, text_types):
     new_text_nodes = []
-    delimiter_location = []
-    before_delimiter = ""
-    substring = ""
-    after_delimiter = ""
     for node in old_nodes:
-        if node.text_type == TextType.NORMAL:
+        if node.text_type != TextType.NORMAL:
             new_text_nodes.append(node)
-        for item in range(len(node.text)):
-            if len(delimiter_location) == 0:
-                before_delimiter += node.text[item]
-            elif node.text[item] == delimiter and len(delimiter_location) == 0:
-                delimiter_location.append(item)
-                new_text_nodes.append(TextNode(before_delimiter, TextType.NORMAL))
-            elif len(delimiter_location) == 1:
-                substring += node.text[item]
-            elif node.text[item] == delimiter and len(delimiter_location) != 0:
-                delimiter_location.append(item)
-                new_text_nodes.append(TextNode(substring, text_types))
-            else:
-                after_delimiter += node.text[item]
-        new_text_nodes.append(TextNode(after_delimiter, TextType.NORMAL))
+            continue
+        first_delimiter = node.text.find(delimiter)
+        if first_delimiter == -1:
+            new_text_nodes.append(node)
+            continue
+        second_delimiter = node.text.find(delimiter, first_delimiter + 1)
+        if second_delimiter == -1:
+            raise ValueError("No closing delimiter")
+        new_text_nodes.append(TextNode(node.text[:first_delimiter], TextType.NORMAL))
+        new_text_nodes.append(
+            TextNode(
+                node.text[first_delimiter + len(delimiter) : second_delimiter],
+                text_types,
+            )
+        )
+        new_text_nodes.append(
+            TextNode(node.text[second_delimiter + len(delimiter) :], TextType.NORMAL)
+        )
     return new_text_nodes
 
 

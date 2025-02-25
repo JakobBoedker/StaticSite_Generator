@@ -1,7 +1,13 @@
 # test
 import unittest
 
-from textnode import TextNode, TextType, text_node_to_html_node
+from textnode import (
+    TextNode,
+    TextType,
+    text_node_to_html_node,
+    extract_markdown_images,
+    extract_markdown_links,
+)
 
 
 class TestTextNode(unittest.TestCase):
@@ -26,8 +32,33 @@ class TestTextToHTML(unittest.TestCase):
         nodestr = text_node_to_html_node(node).to_html()
         self.assertEqual(nodestr, "<b>this is textnode</b>")
 
-    def fname():
-        pass
+
+class TestSplitByDelimiter(unittest.TestCase):
+    pass
+
+
+class TestLinkExtrations(unittest.TestCase):
+    def test_markdown_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        node = extract_markdown_images(text)
+        self.assertEqual(
+            node,
+            [
+                ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+                ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+            ],
+        )
+
+    def test_markdown_links(self):
+        text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+        node = extract_markdown_links(text)
+        self.assertEqual(
+            node,
+            [
+                ("to boot dev", "https://www.boot.dev"),
+                ("to youtube", "https://www.youtube.com/@bootdotdev"),
+            ],
+        )
 
 
 if __name__ == "__main__":
