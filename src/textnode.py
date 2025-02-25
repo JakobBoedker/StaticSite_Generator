@@ -4,6 +4,30 @@ import re
 from htmlnode import LeafNode
 
 
+def split_nodes_image(old_nodes):
+    pass
+
+
+def split_nodes_link(old_nodes):
+    final_list = []
+    for node in old_nodes:
+        links = extract_markdown_links(node.text)
+        if links == []:
+            final_list.append(node)
+            continue
+        current_text = node.text
+        for link_text, link_url in links:
+            parts = current_text.split(f"[{link_text}]({link_url})", 1)
+            current_text = parts[-1]
+            final_list.append(TextNode(parts[0], TextNode.NORMAL))
+            final_list.append(TextNode(link_text, TextType.LINK, link_url))
+        if not current_text:
+
+
+        
+    return final_list
+
+
 def extract_markdown_images(text):
     find_alt = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
     return find_alt
