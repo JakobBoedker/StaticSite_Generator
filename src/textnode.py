@@ -19,12 +19,10 @@ def split_nodes_link(old_nodes):
         for link_text, link_url in links:
             parts = current_text.split(f"[{link_text}]({link_url})", 1)
             current_text = parts[-1]
-            final_list.append(TextNode(parts[0], TextNode.NORMAL))
+            final_list.append(TextNode(parts[0], TextType.NORMAL))
             final_list.append(TextNode(link_text, TextType.LINK, link_url))
-        if not current_text:
-
-
-        
+        if current_text:
+            final_list.append(TextNode(current_text, TextType.NORMAL))
     return final_list
 
 
