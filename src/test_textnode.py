@@ -72,7 +72,7 @@ class TestLinkAndImageSpliter(unittest.TestCase):
         nodestr = str(
             split_nodes_link([node]),
         )
-        self.assertNotEqual(
+        self.assertEqual(
             nodestr,
             "[TextNode(This is text with a link , normal, None), TextNode(to boot dev, link, https://www.boot.dev), TextNode( and , normal, None), TextNode(to youtube, link, https://www.youtube.com/@bootdotdev), TextNode( tes test test, normal, None)]",
         )
