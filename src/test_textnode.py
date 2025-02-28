@@ -7,6 +7,8 @@ from textnode import (
     text_node_to_html_node,
     extract_markdown_images,
     extract_markdown_links,
+    split_nodes_image,
+    split_nodes_link,
 )
 
 
@@ -58,6 +60,21 @@ class TestLinkExtrations(unittest.TestCase):
                 ("to boot dev", "https://www.boot.dev"),
                 ("to youtube", "https://www.youtube.com/@bootdotdev"),
             ],
+        )
+
+
+class TestLinkAndImageSpliter(unittest.TestCase):
+    def test_link_split(self):
+        node = TextNode(
+            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev) tes test test",
+            TextType.NORMAL,
+        )
+        nodestr = str(
+            split_nodes_link([node]),
+        )
+        self.assertNotEqual(
+            nodestr,
+            "[TextNode(This is text with a link , normal, None), TextNode(to boot dev, link, https://www.boot.dev), TextNode( and , normal, None), TextNode(to youtube, link, https://www.youtube.com/@bootdotdev), TextNode( tes test test, normal, None)]",
         )
 
 

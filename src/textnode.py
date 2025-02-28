@@ -5,7 +5,22 @@ from htmlnode import LeafNode
 
 
 def split_nodes_image(old_nodes):
-    pass
+    final_list = []
+    for node in old_nodes:
+        images = extract_markdown_images(node.text)
+        if images == []:
+            final_list.append(node)
+            continue
+        current_text = node.text
+        for link_alt, link_url in images:
+            parts = current_text.split(f"![{link_alt}]({link_url})", 1)
+            current_text = parts[-1]
+            if parts[0]:
+                final_list.append(TextNode(parts[0], TextType.NORMAL))
+            final_list.append(TextNode(link_alt, TextType.IMAGE, link_url))
+        if current_text:
+            final_list.append(TextNode(current_text, TextType.NORMAL))
+    return final_list
 
 
 def split_nodes_link(old_nodes):
@@ -19,7 +34,8 @@ def split_nodes_link(old_nodes):
         for link_text, link_url in links:
             parts = current_text.split(f"[{link_text}]({link_url})", 1)
             current_text = parts[-1]
-            final_list.append(TextNode(parts[0], TextType.NORMAL))
+            if parts[0]:
+                final_list.append(TextNode(parts[0], TextType.NORMAL))
             final_list.append(TextNode(link_text, TextType.LINK, link_url))
         if current_text:
             final_list.append(TextNode(current_text, TextType.NORMAL))
