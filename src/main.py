@@ -4,7 +4,7 @@ import htmlnode
 
 def main():
     node = textnode.TextNode(
-        "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev) tes test test",
+        "This is **text** with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev) tes test test",
         textnode.TextType.NORMAL,
     )
 
@@ -12,8 +12,9 @@ def main():
         "![to boot dev](https://www.boot.dev) This is text with a link",
         textnode.TextType.NORMAL,
     )
-    new_nodes = textnode.split_nodes_link([node])
-    print(new_nodes)
+    node2 = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+    newnodes = textnode.text_to_textnodes(node2)
+    print(newnodes)
 
 
 main()
