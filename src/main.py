@@ -1,20 +1,21 @@
-import textnode
-import htmlnode
+from markdown import markdown_to_blocks
+from textnode import *
+from htmlnode import *
+from markdown import *
 
 
 def main():
-    node = textnode.TextNode(
-        "This is **text** with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev) tes test test",
-        textnode.TextType.NORMAL,
-    )
+    md = """
+This is **bolded** paragraph
 
-    node1 = textnode.TextNode(
-        "![to boot dev](https://www.boot.dev) This is text with a link",
-        textnode.TextType.NORMAL,
-    )
-    node2 = "This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
-    newnodes = textnode.text_to_textnodes(node2)
-    print(newnodes)
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+    """
+    test = markdown_to_blocks(md)
+    print(test)
 
 
 main()
