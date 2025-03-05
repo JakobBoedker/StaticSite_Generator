@@ -1,6 +1,29 @@
 from enum import Enum
-from htmlnode import *
-from textnode import *
+from htmlnode import LeafNode, HTMLNode, ParentNode
+from textnode import (
+    text_node_to_html_node,
+    text_to_textnodes,
+    split_nodes_delimiter,
+    split_nodes_image,
+    split_nodes_link,
+    extract_markdown_links,
+    extract_markdown_images,
+    TextType,
+    TextNode,
+)
+
+
+def determind_block(block):
+    if block == BlockType.PARAGRAPH:
+        return LeafNode("p", block)
+    if block == BlockType.HEADING:
+        pass
+
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        which_block = block_to_block_type(block)
 
 
 def markdown_to_blocks(markdown):
