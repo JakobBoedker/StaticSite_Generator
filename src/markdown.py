@@ -60,15 +60,13 @@ def markdown_to_html_node(markdown):
 
 
 def markdown_to_blocks(markdown):
-    if markdown:
-        final_list = []
-        splited_to_blocks = markdown.split("\n\n")
-        for item in splited_to_blocks:
-            stripedItem = item.strip()
-            if stripedItem:
-                final_list.append(stripedItem)
-    else:
-        raise Exception("Document Empty")
+    splited_to_blocks = markdown.split("\n\n")
+    final_list = []
+    for item in splited_to_blocks:
+        if item == "":
+            continue
+        item = item.strip()
+        final_list.append(item)
     return final_list
 
 
