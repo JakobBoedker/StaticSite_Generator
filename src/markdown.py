@@ -13,17 +13,50 @@ from textnode import (
 )
 
 
+def count_hash_in_heading(block):
+    count = 0
+    for item in block:
+        if item == "#":
+            count += 1
+        if item == " ":
+            break
+    return f"h{count}"
+
+
 def determind_block(block):
-    if block == BlockType.PARAGRAPH:
-        return LeafNode("p", block)
-    if block == BlockType.HEADING:
-        pass
+    typeOfBlock = block_to_block_type(block)
+    if typeOfBlock == BlockType.PARAGRAPH:
+        return HTMLNode("p", block)
+    if typeOfBlock == BlockType.CODE:
+        return HTMLNode("pre", HTMLNode("code", block.strip()))
+    if typeOfBlock == BlockType.UNORDERED_LIST:
+        lines = block.split("\n")
+        list_of_li_nodes = []
+        for line in lines:
+            list_of_li_nodes.append(HTMLNode("li", line[2:]))
+        return HTMLNode("ul", None, list_of_li_nodes)
+    if typeOfBlock == BlockType.ORDERED_LIST:
+        lines = block.split("\n")
+        list_of_li_nodes = []
+        for line in lines:
+            list_of_li_nodes.append(HTMLNode("li", line[3:]))
+        return HTMLNode("ol", None, list_of_li_nodes)
+    if typeOfBlock == BlockType.QUOTE:
+        return HTMLNode("backquote", block[2:])
+    if typeOfBlock == BlockType.HEADING:
+        type_of_heading = count_hash_in_heading(block)
+        if type_of_heading not in {"h1", "h2", "h3", "h4", "h5", "h6"}:
+            return HTMLNode("p", block)
+        heading_content = block.lstrip("#").strip()
+        return HTMLNode(type_of_heading, heading_content)
 
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
+    htmlblocks = []
     for block in blocks:
-        which_block = block_to_block_type(block)
+        htmlblocks.append(determind_block(block))
+    return htmlblocks
 
 
 def markdown_to_blocks(markdown):
