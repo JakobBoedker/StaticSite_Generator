@@ -1,18 +1,12 @@
-from markdown import *
-from textnode import *
-from htmlnode import *
-from markdown import *
+def copy_source_to_destination_dir():
+
+
+
 
 
 def main():
-    md = """
-``` code test ```
+    pass
 
-
-> test
-"""
-
-    print(markdown_to_html_node(md))
-
-
-main()
+if __name__ == "__main__":
+    main()
+    
