@@ -24,6 +24,20 @@ This is the same paragraph on a new line
             ],
         )
 
+    def test_extract_title(self):
+        md = """
+# test
+
+This is **bolded** paragraph
+
+This is another paragraph with _italic_ text and `code` here
+This is the same paragraph on a new line
+
+- This is a list
+- with items
+        """
+        return extract_title(md)
+
 
 class Test_markdown_blocks_to_blockenum(unittest.TestCase):
     def test_block_to_block_types(self):
