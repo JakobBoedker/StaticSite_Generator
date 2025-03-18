@@ -1,26 +1,55 @@
 from enum import Enum
-from typing import Text
-from htmlnode import LeafNode, HTMLNode, ParentNode
-from textnode import (
-    text_node_to_html_node,
-    text_to_textnodes,
-    split_nodes_delimiter,
-    split_nodes_image,
-    split_nodes_link,
-    extract_markdown_links,
-    extract_markdown_images,
-    TextType,
-    TextNode,
-)
+
+from htmlnode import ParentNode
+from inline_markdown import text_to_textnodes
+from textnode import text_node_to_html_node, TextNode, TextType
 
 
-def extract_title(markdown):
-    lines = markdown.split("\n")
-    for line in lines:
-        if line.startswith("# "):
-            return line[2:]
-            break
-    return Exception("no h1 found")
+class BlockType(Enum):
+    PARAGRAPH = "paragraph"
+    HEADING = "heading"
+    CODE = "code"
+    QUOTE = "quote"
+    OLIST = "ordered_list"
+    ULIST = "unordered_list"
+
+
+def markdown_to_blocks(markdown):
+    blocks = markdown.split("\n\n")
+    filtered_blocks = []
+    for block in blocks:
+        if block == "":
+            continue
+        block = block.strip()
+        filtered_blocks.append(block)
+    return filtered_blocks
+
+
+def block_to_block_type(block):
+    lines = block.split("\n")
+
+    if block.startswith(("# ", "## ", "### ", "#### ", "##### ", "###### ")):
+        return BlockType.HEADING
+    if len(lines) > 1 and lines[0].startswith("```") and lines[-1].startswith("```"):
+        return BlockType.CODE
+    if block.startswith(">"):
+        for line in lines:
+            if not line.startswith(">"):
+                return BlockType.PARAGRAPH
+        return BlockType.QUOTE
+    if block.startswith("- "):
+        for line in lines:
+            if not line.startswith("- "):
+                return BlockType.PARAGRAPH
+        return BlockType.ULIST
+    if block.startswith("1. "):
+        i = 1
+        for line in lines:
+            if not line.startswith(f"{i}. "):
+                return BlockType.PARAGRAPH
+            i += 1
+        return BlockType.OLIST
+    return BlockType.PARAGRAPH
 
 
 def markdown_to_html_node(markdown):
@@ -36,17 +65,17 @@ def block_to_html_node(block):
     block_type = block_to_block_type(block)
     if block_type == BlockType.PARAGRAPH:
         return paragraph_to_html_node(block)
-    if block_type == BlockType.CODE:
-        return code_to_html_node(block)
     if block_type == BlockType.HEADING:
         return heading_to_html_node(block)
-    if block_type == BlockType.ORDERED_LIST:
+    if block_type == BlockType.CODE:
+        return code_to_html_node(block)
+    if block_type == BlockType.OLIST:
         return olist_to_html_node(block)
-    if block_type == BlockType.UNORDERED_LIST:
+    if block_type == BlockType.ULIST:
         return ulist_to_html_node(block)
     if block_type == BlockType.QUOTE:
-        return quote_to_html_node
-    raise ValueError("Invalid Block Type")
+        return quote_to_html_node(block)
+    raise ValueError("invalid block type")
 
 
 def text_to_children(text):
@@ -83,7 +112,7 @@ def code_to_html_node(block):
     if not block.startswith("```") or not block.endswith("```"):
         raise ValueError("invalid code block")
     text = block[4:-3]
-    raw_text_node = TextNode(text, TextType.NORMAL)
+    raw_text_node = TextNode(text, TextType.TEXT)
     child = text_node_to_html_node(raw_text_node)
     code = ParentNode("code", [child])
     return ParentNode("pre", [code])
@@ -119,50 +148,3 @@ def quote_to_html_node(block):
     content = " ".join(new_lines)
     children = text_to_children(content)
     return ParentNode("blockquote", children)
-
-
-def markdown_to_blocks(markdown):
-    splited_to_blocks = markdown.split("\n\n")
-    final_list = []
-    for item in splited_to_blocks:
-        if item == "":
-            continue
-        item = item.strip()
-        final_list.append(item)
-    return final_list
-
-
-def block_to_block_type(block):
-    lines = block.split("\n")
-
-    if block.startswith(("# ", "## ", "### ", "#### ", "##### ", "###### ")):
-        return BlockType.HEADING
-    if block.startswith("```") and block.endswith("```"):
-        return BlockType.CODE
-    if block.startswith(">"):
-        for line in lines:
-            if not line.startswith(">"):
-                return BlockType.PARAGRAPH
-        return BlockType.QUOTE
-    if block.startswith("- "):
-        for line in lines:
-            if not line.startswith("- "):
-                return BlockType.PARAGRAPH
-        return BlockType.UNORDERED_LIST
-    if block.startswith("1. "):
-        i = 1
-        for line in lines:
-            if not line.startswith(f"{i}. "):
-                return BlockType.PARAGRAPH
-            i += 1
-        return BlockType.ORDERED_LIST
-    return BlockType.PARAGRAPH
-
-
-class BlockType(Enum):
-    PARAGRAPH = "paragraph"
-    HEADING = "heading"
-    CODE = "code"
-    QUOTE = "quote"
-    UNORDERED_LIST = "unordered_list"
-    ORDERED_LIST = "ordered_list"
